@@ -40,3 +40,9 @@ class WEB:
     PORT: Specific port no. on which you want to run your bot, DON'T TOUCH IT IF YOU DON'T KNOW WHAT IS IT.
     """
     PORT = int(os.environ.get("PORT", 8000))
+
+
+RSS_FEEDS = [
+    "https://www.onmanorama.com/news/world.feeds.onmrss.xml",
+    "https://www.onmanorama.com/kerala.feeds.onmrss.xml"
+]
