@@ -7,7 +7,7 @@ import feedparser
 from bs4 import BeautifulSoup
 import cloudscraper
 from flask import Flask
-from pyrogram import Client, utils as pyroutils, enums
+from pyrogram import Client, utils as pyroutils, enums, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from config import BOT, API, OWNER, CHANNEL, RSS_FEEDS
 
@@ -78,8 +78,12 @@ async def get_full_article_text(url):
         if not article_body:
             return "Could not retrieve full article content."
         
-        # Remove unwanted elements
-        for unwanted in article_body.find_all(['script', 'style', 'div', class_='advtBlock']):
+        # Remove unwanted elements - Fixed syntax
+        for unwanted in article_body.find_all(['script', 'style']):
+            unwanted.decompose()
+        
+        # Remove divs with advtBlock class separately
+        for unwanted in article_body.find_all('div', class_='advtBlock'):
             unwanted.decompose()
         
         # Get clean text paragraphs
@@ -184,7 +188,8 @@ class NewsBot(Client):
         BOT.USERNAME = f"@{me.username}"
         
         # Register callback handler for pagination
-        self.add_handler(filters.callback_query(filters.regex("^nav_")), self.handle_navigation)
+        from pyrogram.handlers import CallbackQueryHandler
+        self.add_handler(CallbackQueryHandler(self.handle_navigation, filters.regex("^nav_")))
         
         await self.send_message(
             OWNER.ID,
